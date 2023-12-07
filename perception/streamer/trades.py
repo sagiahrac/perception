@@ -119,26 +119,26 @@ def start_thread(q):
         write_trades(*args)
 
 
-# N_THREADS = 100
-# if __name__ == "__main__":
-#     datadir = "/homes/sagiah/school/perception/tickdata"
-#     q = queue.Queue()
-#     for ticker in ["TSLA", "GE", "IBM", "PG", "JPM"]:
-#         print(f"Getting {ticker} trades")
-#         for year in range(2014, 2023):
-#             for month in range(1, 13):
-#                 threads, threads_args = get_month_threads(ticker, year, month, datadir)
-#                 for args in threads_args:
-#                     q.put(args)
-#             print(f"Got {q.qsize()} tasks for {ticker} {year}")
+N_THREADS = 30
+if __name__ == "__main__":
+    datadir = "/homes/sagiah/school/perception/data/trades"
+    q = queue.Queue()
+    for ticker in ["TSLA", "GE", "IBM", "PG", "JPM"]:
+        print(f"Getting {ticker} trades")
+        for year in range(2022, 2023):
+            for month in range(1, 13):
+                threads, threads_args = get_month_threads(ticker, year, month, datadir)
+                for args in threads_args:
+                    q.put(args)
+            print(f"Got {q.qsize()} tasks for {ticker} {year}")
 
-#     threads = []
-#     for i in range(N_THREADS):
-#         t = threading.Thread(target=start_thread, args=(q,))
-#         threads.append(t)
+    threads = []
+    for i in range(N_THREADS):
+        t = threading.Thread(target=start_thread, args=(q,))
+        threads.append(t)
 
-#     for t in threads:
-#         t.start()
+    for t in threads:
+        t.start()
 
-#     for t in threads:
-#         t.join()
+    for t in threads:
+        t.join()
