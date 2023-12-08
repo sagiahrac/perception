@@ -1,8 +1,9 @@
-import polars as pl
 from glob import glob
 
+import polars as pl
 
-def add_timestamp_column(parquets_path: str, dst=None):
+
+def read_trade_parquets(parquets_path: str, dst=None):
     """
     Adds a timestamp column to the DataFrame obtained from parquet files.
 

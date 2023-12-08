@@ -1,15 +1,12 @@
+import os
 from datetime import datetime, timedelta
-from perception.streamer.trades import (
-    check4trades,
-    sip2datetime,
-    datetime2sip,
-    get_trades,
-    write_trades,
-)
 from pathlib import Path
 from shutil import rmtree
+
 import pandas as pd
-import os
+
+from perception.streamer.trades import (check4trades, datetime2sip, get_trades,
+                                        sip2datetime, write_trades)
 
 
 def test_polygon_online():

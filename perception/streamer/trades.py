@@ -1,12 +1,13 @@
-from polygon import RESTClient
+import os
+import queue
 import threading
 from datetime import datetime, timedelta
-import pytz
-import pandas as pd
 from pathlib import Path
-import queue
 from time import sleep
-import os
+
+import pandas as pd
+import pytz
+from polygon import RESTClient
 
 
 def sip2datetime(sip_timestamp):
