@@ -4,7 +4,7 @@ import pytest
 
 from perception.preprocess.dollar_bars import get_dollar_bars
 from perception.preprocess.imbalance_bars import ticks_diff
-from perception.preprocess.utils import read_trade_parquets, filter_datetime
+from perception.preprocess.utils import filter_datetime, read_trade_parquets
 
 
 @pytest.fixture

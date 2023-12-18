@@ -4,6 +4,7 @@ import polars as pl
 
 EWM_MODE = {"alpha": 0.01}
 
+
 def add_bt_price_trend(df: pl.DataFrame) -> pl.DataFrame:
     df = df.with_columns(
         pl.col("price")
@@ -69,7 +70,7 @@ def add_log_dollars_exchanged_ewm(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def  add_expected_log_dollars_exchanged(df: pl.DataFrame) -> pl.DataFrame:
+def add_expected_log_dollars_exchanged(df: pl.DataFrame) -> pl.DataFrame:
     df = df.with_columns(
         (
             pl.col("log_dollars_buy_exchanged_ewm").fill_null(0) * pl.col("pbuy_ewm")
@@ -104,7 +105,7 @@ def _group_to_dollarbars(
         group_vals.append(group_id)
         group_size += 1
         dollar_cumsum += tick_dollars
-        threshold = (abs(expected_dollars) + 0.1*s) * bar_len
+        threshold = (abs(expected_dollars) + 0.1 * s) * bar_len
         # print(s)
         if group_size > 2 and abs(dollar_cumsum) >= threshold:
             dollar_cumsum = 0

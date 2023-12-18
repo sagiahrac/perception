@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from glob import glob
 
 import polars as pl
+import pyarrow.parquet as pq
 
 
 def read_trade_parquets(parquets_path: str, dst=None, filter_dt=True):
@@ -17,15 +18,11 @@ def read_trade_parquets(parquets_path: str, dst=None, filter_dt=True):
         DataFrame: The DataFrame with the added timestamp column.
 
     """
-    dfs = [
-        pl.read_parquet(path, columns=["sip_timestamp", "price", "size"])
-        for path in glob(parquets_path)
-    ]
-    dfs = [
-        df.cast({"sip_timestamp": pl.Int64, "price": pl.Float64, "size": pl.Float64})
-        for df in dfs
-    ]
-    df = pl.concat(dfs)
+
+    table = pq.ParquetDataset(glob(parquets_path)).read(
+        columns=["sip_timestamp", "price", "size"]
+    )
+    df = pl.from_arrow(table).lazy()
 
     dt_type = pl.Datetime("ns", "America/New_York")
     df = df.with_columns(pl.col("sip_timestamp").cast(dt_type).alias("datetime"))
@@ -36,7 +33,7 @@ def read_trade_parquets(parquets_path: str, dst=None, filter_dt=True):
         df = filter_datetime(df, "datetime")
     if dst is not None:
         df.write_parquet(dst)
-    return df
+    return df.collect()
 
 
 def filter_datetime(df: pl.DataFrame, dt_colname: str, start=(9, 30), end=(16, 0)):
@@ -108,6 +105,7 @@ def split_to_time_intervals(
         dfs.append(df.filter(filtered_exp))
     return dfs
 
+
 def group_by_date(df: pl.DataFrame, dt_colname: str):
     """
     Group the DataFrame by day.
@@ -122,13 +120,14 @@ def group_by_date(df: pl.DataFrame, dt_colname: str):
     df = df.with_columns(pl.col(dt_colname).dt.date().alias("date"))
     return df.group_by("date")
 
+
 def calc_stds_for_windows(bars: pl.DataFrame, minutes: int):
-    dfs = split_to_time_intervals(bars, 'time', timedelta(minutes=minutes))
+    dfs = split_to_time_intervals(bars, "time", timedelta(minutes=minutes))
     for i, df in enumerate(dfs):
-        df = df.with_columns(date=pl.col('time').dt.date().alias('date'))
-        stds = df.group_by('date').agg(pl.col('close').std().alias('std'))
-        df = df.join(stds, on='date').sort('date')
+        df = df.with_columns(date=pl.col("time").dt.date().alias("date"))
+        stds = df.group_by("date").agg(pl.col("close").std().alias("std"))
+        df = df.join(stds, on="date").sort("date")
         dfs[i] = df
 
-    df = pl.concat(dfs).sort('time')
+    df = pl.concat(dfs).sort("time")
     return df
